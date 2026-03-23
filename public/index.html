@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Linux Terminal</title>
+
+  <!-- xterm.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11.0/lib/addon-web-links.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-search@0.13.0/lib/addon-search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-clipboard@0.1.0/lib/addon-clipboard.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
+</head>
+<body>
+  <!-- ── Top Bar ─────────────────────────────────────── -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <span class="logo">🖥️ Web Terminal</span>
+      <span class="session-badge" id="sessionBadge">connecting…</span>
+    </div>
+    <div class="topbar-right">
+      <!-- Font size -->
+      <button class="tb-btn" id="btnFontDown" title="Decrease font (Ctrl+-)">A−</button>
+      <span class="font-label" id="fontLabel">16</span>
+      <button class="tb-btn" id="btnFontUp" title="Increase font (Ctrl++)">A+</button>
+
+      <span class="sep">│</span>
+
+      <!-- Theme -->
+      <button class="tb-btn" id="btnTheme" title="Toggle theme">🌙</button>
+
+      <span class="sep">│</span>
+
+      <!-- File upload -->
+      <label class="tb-btn file-btn" title="Upload file">
+        📁 Upload
+        <input type="file" id="fileInput" hidden>
+      </label>
+
+      <!-- New terminal -->
+      <button class="tb-btn" id="btnNewTerm" title="New terminal">＋</button>
+
+      <span class="sep">│</span>
+
+      <!-- Fullscreen -->
+      <button class="tb-btn" id="btnFullscreen" title="Fullscreen (F11)">⛶</button>
+    </div>
+  </header>
+
+  <!-- ── Upload Progress ─────────────────────────────── -->
+  <div id="uploadOverlay" class="upload-overlay hidden">
+    <div class="upload-box">
+      <div class="upload-spinner"></div>
+      <p>Uploading <span id="uploadName"></span>…</p>
+      <div class="upload-bar"><div class="upload-fill" id="uploadFill"></div></div>
+    </div>
+  </div>
+
+  <!-- ── Terminal Container ──────────────────────────── -->
+  <main id="terminalContainer"></main>
+
+  <!-- ── Keyboard Shortcuts Help ─────────────────────── -->
+  <div id="shortcutsHelp" class="shortcuts-help hidden">
+    <div class="shortcuts-content">
+      <h3>⌨️ Keyboard Shortcuts</h3>
+      <table>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></td><td>Copy selection</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd></td><td>Paste from clipboard</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Clear screen</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+</td><td>Increase font</td></tr>
+        <tr><td><kbd>Ctrl</kbd>-</td><td>Decrease font</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>0</kbd></td><td>Reset font size</td></tr>
+        <tr><td><kbd>F11</kbd></td><td>Toggle fullscreen</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></td><td>Toggle theme</td></tr>
+        <tr><td><kbd>?</kbd></td><td>Show/hide this help</td></tr>
+      </table>
+      <button id="btnCloseHelp" class="tb-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/terminal.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/upload.js"></script>
+</body>
+</html>

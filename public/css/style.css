@@ -1,0 +1,272 @@
+/* ── CSS Variables & Themes ──────────────────────────────── */
+:root {
+  --font-size: 16px;
+  --font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', 'Consolas', monospace;
+  --topbar-height: 40px;
+  --transition: 0.2s ease;
+}
+
+/* Dark theme (default) */
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --bg-terminal: #0d1117;
+  --bg-topbar: #161b22;
+  --bg-topbar-hover: #1f2937;
+  --text: #c9d1d9;
+  --text-dim: #8b949e;
+  --accent: #58a6ff;
+  --border: #30363d;
+  --success: #3fb950;
+  --danger: #f85149;
+  --badge-bg: #1f6feb;
+  --upload-bg: rgba(0,0,0,0.85);
+  --upload-box-bg: #161b22;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-terminal: #fafbfc;
+  --bg-topbar: #f6f8fa;
+  --bg-topbar-hover: #eaeef2;
+  --text: #24292f;
+  --text-dim: #57606a;
+  --accent: #0969da;
+  --border: #d0d7de;
+  --success: #1a7f37;
+  --danger: #cf222e;
+  --badge-bg: #0969da;
+  --upload-bg: rgba(255,255,255,0.9);
+  --upload-box-bg: #ffffff;
+  --shadow: 0 4px 24px rgba(0,0,0,0.12);
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+/* ── Top Bar ────────────────────────────────────────────── */
+#topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  padding: 0 12px;
+  background: var(--bg-topbar);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  z-index: 100;
+}
+
+.topbar-left, .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: -0.3px;
+}
+
+.session-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--badge-bg);
+  color: #fff;
+  font-weight: 600;
+}
+
+.session-badge.connected {
+  background: var(--success);
+}
+
+.session-badge.disconnected {
+  background: var(--danger);
+}
+
+.sep {
+  color: var(--border);
+  margin: 0 2px;
+}
+
+.tb-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--font-family);
+  transition: background var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+
+.tb-btn:hover {
+  background: var(--bg-topbar-hover);
+  border-color: var(--accent);
+}
+
+.file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.font-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ── Terminal Container ─────────────────────────────────── */
+#terminalContainer {
+  height: calc(100vh - var(--topbar-height));
+  width: 100%;
+  background: var(--bg-terminal);
+}
+
+#terminalContainer .xterm {
+  height: 100%;
+  padding: 4px;
+}
+
+/* ── Upload Overlay ─────────────────────────────────────── */
+.upload-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--upload-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.upload-overlay.hidden {
+  display: none;
+}
+
+.upload-box {
+  background: var(--upload-box-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 48px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.upload-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.upload-bar {
+  width: 200px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.upload-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+
+/* ── Shortcuts Help ─────────────────────────────────────── */
+.shortcuts-help {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.shortcuts-help.hidden { display: none; }
+
+.shortcuts-content {
+  background: var(--upload-box-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 32px;
+  box-shadow: var(--shadow);
+  max-width: 420px;
+  width: 90%;
+}
+
+.shortcuts-content h3 {
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.shortcuts-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.shortcuts-content td {
+  padding: 6px 8px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcuts-content td:first-child {
+  white-space: nowrap;
+  width: 180px;
+}
+
+.shortcuts-content kbd {
+  background: var(--bg-topbar);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-family: var(--font-family);
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ── Mobile Responsive ─────────────────────────────────── */
+@media (max-width: 600px) {
+  .logo { display: none; }
+  .sep { display: none; }
+  .font-label { display: none; }
+  #topbar { padding: 0 8px; }
+  .tb-btn { padding: 4px 8px; font-size: 11px; }
+}

@@ -1,0 +1,17 @@
+run = "npm start"
+entrypoint = "server/index.js"
+hidden = [".config", ".git", "node_modules"]
+
+[nix]
+channel = "stable-23_11"
+
+[deployment]
+run = ["sh", "-c", "npm start"]
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[env]
+PORT = "3000"
+NODE_ENV = "production"

@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  web-terminal:
+    build: .
+    container_name: web-linux-terminal
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    # Run as root for full PTY + sudo
+    privileged: true
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    # Persist workspace across restarts
+    volumes:
+      - terminal-home:/root
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/sysinfo"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  terminal-home:
