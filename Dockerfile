@@ -22,8 +22,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     build-essential gcc g++ make cmake gdb \
     # Python
     python3 python3-pip python3-venv python3-dev \
-    # Node.js (via NodeSource for latest LTS)
-    curl wget ca-certificates gnupg \
+    # awk → gawk
+    gawk \
     # Java
     default-jdk default-jre \
     # Tools
@@ -31,15 +31,19 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     locales \
     # Networking
     iproute2 iputils-ping net-tools dnsutils traceroute \
+    openssh-server \
     # File utilities
     zip unzip tar gzip bzip2 xz-utils \
     # Text processing
-    sed awk grep \
+    sed grep \
     # Process management
     procps psmisc \
     # Misc
-    man-db less \
+    man-db less curl wget ca-certificates gnupg \
     && rm -rf /var/lib/apt/lists/*
+
+# ── Fix openssh-server symlink error ──────────────────────
+RUN rm -f /etc/ssh/sshd_config && dpkg-reconfigure openssh-server || true
 
 # ── Locale ─────────────────────────────────────────────────
 RUN locale-gen en_US.UTF-8
@@ -76,9 +80,6 @@ RUN useradd -m -s /bin/bash -G sudo user \
     && echo 'user ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/user \
     && echo 'root ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/root \
     && chmod 440 /etc/sudoers.d/user /etc/sudoers.d/root
-
-# Also keep root as primary (for Replit / container defaults)
-# User can run: sudo apt install ... freely
 
 # ── App setup ──────────────────────────────────────────────
 WORKDIR /app
