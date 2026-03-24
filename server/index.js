@@ -70,8 +70,20 @@ app.post('/api/upload', uploadLimiter, upload.single('file'), (req, res) => {
     if (!realParent.startsWith('/tmp')) {
       return res.status(403).json({ error: 'Access denied' });
     }
-    fs.copyFileSync(req.file.path, target);
-    fs.unlinkSync(req.file.path);
+    // Reject if target already exists and is a symlink to avoid symlink overwrite
+    try {
+      const targetStat = fs.lstatSync(target);
+      if (targetStat.isSymbolicLink()) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+    } catch (statErr) {
+      if (statErr.code !== 'ENOENT') {
+        throw statErr;
+      }
+      // ENOENT: target does not exist yet, safe to proceed
+    }
+    // Move the uploaded temp file into place without following symlinks
+    fs.renameSync(req.file.path, target);
     res.json({ ok: true, path: target, size: req.file.size });
   } catch (e) {
     res.status(500).json({ error: e.message });
