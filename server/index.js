@@ -124,6 +124,9 @@ app.get('/api/sysinfo', async (req, res) => {
 app.get('/api/download', downloadLimiter, (req, res) => {
   const filePath = req.query.path;
   if (!filePath) return res.status(400).send('Missing path');
+  if (Array.isArray(filePath) || typeof filePath !== 'string') {
+    return res.status(400).send('Invalid path');
+  }
   // Resolve to an absolute path and restrict to /tmp to prevent arbitrary reads
   const resolved = path.resolve(filePath);
   if (!resolved.startsWith('/tmp/')) return res.status(403).send('Access denied');
