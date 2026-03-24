@@ -88,9 +88,6 @@ function initTerminal() {
   // Web links
   term.loadAddon(new WebLinksAddon.WebLinksAddon());
 
-  // Search
-  term.loadAddon(new SearchAddon.SearchAddon());
-
   // Open
   term.open(container);
   fitAddon.fit();
