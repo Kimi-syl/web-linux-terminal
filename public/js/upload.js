@@ -66,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (xhr.status === 200) {
         const resp = JSON.parse(xhr.responseText);
         const term = window.termApp.term;
-        const socket = window.termApp.socket;
         // Notify in terminal
         term.write(`\r\n\x1b[1;32m📁 Uploaded: ${file.name} → ${resp.path}\x1b[0m\r\n`);
       } else {

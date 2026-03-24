@@ -6,9 +6,12 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
+const { execSync } = require('child_process');
 const { Server } = require('socket.io');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const rateLimit = require('express-rate-limit');
 const { createTerminal, destroyTerminal, resizeTerminal } = require('./terminal');
 
 const app = express();
@@ -39,11 +42,34 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
 });
 
-app.post('/api/upload', upload.single('file'), (req, res) => {
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  message: { error: 'Too many upload requests, please try again later.' },
+});
+
+const downloadLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60,
+  message: 'Too many download requests, please try again later.',
+});
+
+app.post('/api/upload', uploadLimiter, upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file' });
-  const target = req.body.path || `/tmp/${req.file.originalname}`;
-  const fs = require('fs');
+  // Sanitize filename: strip any path components to prevent traversal
+  const safeName = path.basename(req.file.originalname);
+  // Only allow a target path inside /tmp to prevent arbitrary file writes.
+  // Resolve the path to prevent traversal via '..' segments or symlinks.
+  const requestedPath = req.body.path ? path.resolve(req.body.path) : null;
+  const target = (requestedPath && requestedPath.startsWith('/tmp/'))
+    ? requestedPath
+    : `/tmp/${safeName}`;
   try {
+    // Ensure the parent directory resolves within /tmp (catches symlink attacks)
+    const realParent = fs.realpathSync(path.dirname(target));
+    if (!realParent.startsWith('/tmp')) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
     fs.copyFileSync(req.file.path, target);
     fs.unlinkSync(req.file.path);
     res.json({ ok: true, path: target, size: req.file.size });
@@ -54,7 +80,6 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 
 // ── System info endpoint ───────────────────────────────────
 app.get('/api/sysinfo', async (req, res) => {
-  const { execSync } = require('child_process');
   const run = (cmd) => {
     try { return execSync(cmd, { encoding: 'utf8', timeout: 5000 }).trim(); }
     catch { return 'N/A'; }
@@ -83,12 +108,21 @@ app.get('/api/sysinfo', async (req, res) => {
 });
 
 // ── Download file endpoint ─────────────────────────────────
-app.get('/api/download', (req, res) => {
+app.get('/api/download', downloadLimiter, (req, res) => {
   const filePath = req.query.path;
   if (!filePath) return res.status(400).send('Missing path');
-  const fs = require('fs');
-  if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
-  res.download(filePath);
+  // Resolve to an absolute path and restrict to /tmp to prevent arbitrary reads
+  const resolved = path.resolve(filePath);
+  if (!resolved.startsWith('/tmp/')) return res.status(403).send('Access denied');
+  if (!fs.existsSync(resolved)) return res.status(404).send('File not found');
+  // Resolve symlinks to prevent symlink-based traversal out of /tmp
+  try {
+    const real = fs.realpathSync(resolved);
+    if (!real.startsWith('/tmp/')) return res.status(403).send('Access denied');
+    res.download(real);
+  } catch {
+    res.status(404).send('File not found');
+  }
 });
 
 // ── WebSocket terminal ─────────────────────────────────────
