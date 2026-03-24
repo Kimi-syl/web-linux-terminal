@@ -47,14 +47,15 @@ function createWithPty(cols, rows, shell) {
       ].join(':'),
     },
   });
-  return {
+  const wrapper = {
     write: (data) => term.write(data),
     resize: (c, r) => term.resize(c, r),
-    kill: () => { try { term.kill(); } catch {} },
+    kill: () => { wrapper._destroyed = true; try { term.kill(); } catch {} },
     onData: (cb) => term.onData(cb),
-    onExit: (cb) => term.onExit(({ exitCode }) => cb(exitCode)),
+    onExit: (cb) => term.onExit(({ exitCode }) => { wrapper._destroyed = true; cb({ exitCode }); }),
     _destroyed: false,
   };
+  return wrapper;
 }
 
 // ── child_process + script fallback ──────────────────────
@@ -118,11 +119,11 @@ function createWithSpawn(cols, rows, shell) {
     onExit: (cb) => {
       child.on('exit', (code) => {
         wrapper._destroyed = true;
-        cb(code || 0);
+        cb({ exitCode: code ?? 0 });
       });
       child.on('error', () => {
         wrapper._destroyed = true;
-        cb(1);
+        cb({ exitCode: 1 });
       });
     },
     _destroyed: false,

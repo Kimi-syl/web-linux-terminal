@@ -10,6 +10,7 @@ let term = null;
 let fitAddon = null;
 let socket = null;
 let isConnected = false;
+let resizeHandler = null;
 
 // ── Theme-aware palette ──────────────────────────────────
 function getThemeColors() {
@@ -144,13 +145,17 @@ function initTerminal() {
   // Focus
   term.focus();
 
-  // Resize handler
-  window.addEventListener('resize', () => {
+  // Resize handler — remove any previous listener to avoid accumulation
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler);
+  }
+  resizeHandler = () => {
     fitAddon.fit();
     if (socket && isConnected) {
       socket.emit('resize', { cols: term.cols, rows: term.rows });
     }
-  });
+  };
+  window.addEventListener('resize', resizeHandler);
 
   // Connect
   connectSocket();
@@ -163,6 +168,8 @@ function connectSocket() {
   badge.className = 'session-badge';
 
   socket = io({ transports: ['polling'], reconnection: true, reconnectionDelay: 1000, reconnectionAttempts: 10 });
+  // Keep the shared termApp reference up to date
+  window.termApp.socket = socket;
 
   socket.on('connect', () => {
     isConnected = true;
@@ -246,6 +253,11 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(saved);
 
   initTerminal();
+  // initTerminal() assigns term/fitAddon and calls connectSocket() which assigns socket.
+  // Sync all references into the shared termApp object so ui.js and upload.js can use them.
+  window.termApp.term = term;
+  window.termApp.fitAddon = fitAddon;
+  window.termApp.socket = socket;
 
   // Welcome overlay via sysinfo
   fetch('/api/sysinfo')
