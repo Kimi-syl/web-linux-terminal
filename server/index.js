@@ -67,7 +67,7 @@ app.post('/api/upload', uploadLimiter, upload.single('file'), (req, res) => {
   try {
     // Ensure the parent directory resolves within /tmp (catches symlink attacks)
     const realParent = fs.realpathSync(path.dirname(target));
-    if (!realParent.startsWith('/tmp')) {
+    if (realParent !== '/tmp' && !realParent.startsWith('/tmp/')) {
       return res.status(403).json({ error: 'Access denied' });
     }
     // Reject if target already exists and is a symlink to avoid symlink overwrite
