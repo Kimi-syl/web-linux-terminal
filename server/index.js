@@ -135,6 +135,8 @@ app.get('/api/download', downloadLimiter, (req, res) => {
   try {
     const real = fs.realpathSync(resolved);
     if (!real.startsWith('/tmp/')) return res.status(403).send('Access denied');
+    const stat = fs.statSync(real);
+    if (!stat.isFile()) return res.status(404).send('File not found');
     res.download(real);
   } catch {
     res.status(404).send('File not found');
