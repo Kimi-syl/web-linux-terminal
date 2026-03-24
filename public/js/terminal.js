@@ -162,7 +162,7 @@ function connectSocket() {
   badge.textContent = 'connecting…';
   badge.className = 'session-badge';
 
-  socket = io({ transports: ['websocket'], reconnection: true, reconnectionDelay: 1000 });
+  socket = io({ reconnection: true, reconnectionDelay: 1000, reconnectionAttempts: 10 });
 
   socket.on('connect', () => {
     isConnected = true;
