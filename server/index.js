@@ -51,7 +51,7 @@ const uploadLimiter = rateLimit({
 const downloadLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 60,
-  message: 'Too many download requests, please try again later.',
+  message: { error: 'Too many download requests, please try again later.' },
 });
 
 app.post('/api/upload', uploadLimiter, upload.single('file'), (req, res) => {
