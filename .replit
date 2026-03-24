@@ -1,9 +1,11 @@
 run = "npm start"
 entrypoint = "server/index.js"
 hidden = [".config", ".git", "node_modules"]
+modules = ["nodejs-20"]
 
 [nix]
 channel = "stable-23_11"
+packages = ["psmisc", "fetchutils", "python3", "gnumake", "gcc"]
 
 [deployment]
 run = ["sh", "-c", "npm start"]
@@ -11,6 +13,10 @@ run = ["sh", "-c", "npm start"]
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
 
 [env]
 PORT = "3000"
