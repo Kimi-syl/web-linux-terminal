@@ -14,5 +14,8 @@
     pkgs.nano
     pkgs.vim
     pkgs.htop
+    # node-pty build deps
+    pkgs.nodePackages.node-gyp
+    pkgs.pkg-config
   ];
 }
