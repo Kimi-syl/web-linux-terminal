@@ -60,7 +60,8 @@ app.post('/api/upload', uploadLimiter, upload.single('file'), (req, res) => {
   const safeName = path.basename(req.file.originalname);
   // Only allow a target path inside /tmp to prevent arbitrary file writes.
   // Resolve the path to prevent traversal via '..' segments or symlinks.
-  const requestedPath = req.body.path ? path.resolve(req.body.path) : null;
+  const bodyPath = (req.body && typeof req.body.path === 'string') ? req.body.path.trim() : null;
+  const requestedPath = bodyPath ? path.resolve(bodyPath) : null;
   const target = (requestedPath && requestedPath.startsWith('/tmp/'))
     ? requestedPath
     : `/tmp/${safeName}`;
