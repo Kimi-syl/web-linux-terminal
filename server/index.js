@@ -18,12 +18,13 @@ const server = http.createServer(app);
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-// ── Socket.IO with WebSocket transport ─────────────────────
+// ── Socket.IO — polling transport (works behind proxies like Replit/Railway) ──
 const io = new Server(server, {
   cors: { origin: '*' },
   maxHttpBufferSize: 10e6,
   pingTimeout: 60000,
   pingInterval: 25000,
+  transports: ['polling', 'websocket'],
 });
 
 // ── Static files ───────────────────────────────────────────
